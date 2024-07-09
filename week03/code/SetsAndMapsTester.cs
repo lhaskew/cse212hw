@@ -108,9 +108,17 @@ public static class SetsAndMapsTester {
     /// </summary>
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     private static void DisplayPairs(string[] words) {
-        // To display the pair correctly use something like:
-        // Console.WriteLine($"{word} & {pair}");
-        // Each pair of words should displayed on its own line.
+        HashSet<string> seen = new HashSet<string>();
+        
+        foreach (var word in words) {
+            string reversed = new string(new[] { word[1], word[0] });
+            
+            if (seen.Contains(reversed) && word != reversed) {
+                Console.WriteLine($"{word} & {reversed}");
+            }
+            
+            seen.Add(word);
+        }
     }
 
     /// <summary>
@@ -123,19 +131,30 @@ public static class SetsAndMapsTester {
     /// file.
     /// </summary>
     /// <param name="filename">The name of the file to read</param>
-    /// <returns>fixed array of divisors</returns>
+    /// <returns>A dictionary where keys are degrees and values are counts</returns>
     /// #############
     /// # Problem 2 #
     /// #############
     private static Dictionary<string, int> SummarizeDegrees(string filename) {
         var degrees = new Dictionary<string, int>();
+
         foreach (var line in File.ReadLines(filename)) {
-            var fields = line.Split(",");
-            // Todo Problem 2 - ADD YOUR CODE HERE
+            var fields = line.Split(',');
+            if (fields.Length >= 4) {
+                string degree = fields[3].Trim(); // Assuming 0-based indexing and trimming whitespace
+                if (!string.IsNullOrEmpty(degree)) {
+                    if (degrees.ContainsKey(degree)) {
+                        degrees[degree]++;
+                    } else {
+                        degrees[degree] = 1;
+                    }
+                }
+            }
         }
 
         return degrees;
     }
+
 
     /// <summary>
     /// Determine if 'word1' and 'word2' are anagrams.  An anagram
@@ -153,12 +172,48 @@ public static class SetsAndMapsTester {
     /// Reminder: You can access a letter by index in a string by 
     /// using the [] notation.
     /// </summary>
+    /// <param name="word1">First word to compare</param>
+    /// <param name="word2">Second word to compare</param>
+    /// <returns>True if the words are anagrams, false otherwise</returns>
     /// #############
     /// # Problem 3 #
     /// #############
     private static bool IsAnagram(string word1, string word2) {
-        // Todo Problem 3 - ADD YOUR CODE HERE
-        return false;
+        word1 = word1.ToLower().Replace(" ", "");
+        word2 = word2.ToLower().Replace(" ", "");
+
+        if (word1.Length != word2.Length)
+            return false;
+
+        Dictionary<char, int> charCount1 = new Dictionary<char, int>();
+        Dictionary<char, int> charCount2 = new Dictionary<char, int>();
+
+        foreach (char c in word1) {
+            if (charCount1.ContainsKey(c)) {
+                charCount1[c]++;
+            } else {
+                charCount1[c] = 1;
+            }
+        }
+
+        foreach (char c in word2) {
+            if (charCount2.ContainsKey(c)) {
+                charCount2[c]++;
+            } else {
+                charCount2[c] = 1;
+            }
+        }
+
+        foreach (var kvp in charCount1) {
+            char c = kvp.Key;
+            int count1 = kvp.Value;
+            int count2 = charCount2.ContainsKey(c) ? charCount2[c] : 0;
+
+            if (count1 != count2)
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -235,5 +290,9 @@ public static class SetsAndMapsTester {
         // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
         // on those classes so that the call to Deserialize above works properly.
         // 2. Add code below to print out each place a earthquake has happened today and its magitude.
+
+        foreach (var feature in featureCollection.Features) {
+        Console.WriteLine($"{feature.Properties.Place} - Mag {feature.Properties.Mag}");
+    }
     }
 }
