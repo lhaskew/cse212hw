@@ -140,15 +140,19 @@ public static class RecursionTester {
     /// # Problem 1 #
     /// #############
     /// Using recursion, find the sum of 1^2 + 2^2 + 3^2 + ... + n^2
-    /// and return it.  Remember to both express the solution 
+    /// and return it. Remember to both express the solution 
     /// in terms of recursive call on a smaller problem and 
-    /// to identify a base case (terminating case).  If the value of
-    /// n &lt;= 0, just return 0.   A loop should not be used.
+    /// to identify a base case (terminating case). If the value of
+    /// n <= 0, just return 0. A loop should not be used.
     /// </summary>
     public static int SumSquaresRecursive(int n) {
-        // TODO Start Problem 1
-        return 0;
+        if (n <= 0) {
+            return 0;
+        }
+        
+        return n * n + SumSquaresRecursive(n - 1);
     }
+
 
     /// <summary>
     /// #############
@@ -170,8 +174,17 @@ public static class RecursionTester {
     /// and the length of the letters list).
     /// </summary>
     public static void PermutationsChoose(string letters, int size, string word = "") {
-        // TODO Start Problem 2
+        if (word.Length == size) {
+            Console.WriteLine(word);
+            return;
+        }
+
+        for (int i = 0; i < letters.Length; i++) {
+            string remaining = letters.Substring(0, i) + letters.Substring(i + 1);
+            PermutationsChoose(remaining, size, word + letters[i]);
+        }
     }
+
 
     /// <summary>
     /// #############
@@ -219,7 +232,7 @@ public static class RecursionTester {
     /// until the memoization is implemented.
     /// </summary>
     public static decimal CountWaysToClimb(int s, Dictionary<int, decimal>? remember = null) {
-        // Base Cases
+
         if (s == 0)
             return 0;
         if (s == 1)
@@ -229,10 +242,19 @@ public static class RecursionTester {
         if (s == 3)
             return 4;
 
-        // Solve using recursion
-        decimal ways = CountWaysToClimb(s - 1) + CountWaysToClimb(s - 2) + CountWaysToClimb(s - 3);
+        if (remember == null)
+            remember = new Dictionary<int, decimal>();
+
+        if (remember.ContainsKey(s))
+            return remember[s];
+
+        decimal ways = CountWaysToClimb(s - 1, remember) + CountWaysToClimb(s - 2, remember) + CountWaysToClimb(s - 3, remember);
+
+        remember[s] = ways;
+
         return ways;
     }
+
 
     /// <summary>
     /// #############
@@ -248,7 +270,21 @@ public static class RecursionTester {
     /// some of the string functions like IndexOf and [..X] / [X..] to be useful in solving this problem.
     /// </summary>
     public static void WildcardBinary(string pattern) {
-        // TODO Start Problem 4
+        WildcardBinaryHelper(pattern, 0, "");
+    }
+
+    private static void WildcardBinaryHelper(string pattern, int index, string current) {
+        if (index == pattern.Length) {
+            Console.WriteLine(current);
+            return;
+        }
+
+        if (pattern[index] == '*') {
+            WildcardBinaryHelper(pattern, index + 1, current + '0');
+            WildcardBinaryHelper(pattern, index + 1, current + '1');
+        } else {
+            WildcardBinaryHelper(pattern, index + 1, current + pattern[index]);
+        }
     }
 
     /// <summary>
@@ -263,9 +299,30 @@ public static class RecursionTester {
 
         // currPath.Add((1,2)); // Use this syntax to add to the current path
 
-        // TODO Start Problem 5
-        // ADD CODE HERE
+        currPath.Add((x, y));
+
+        if (maze.IsEnd(x, y)) {
+            Console.WriteLine(currPath.AsString());
+        } else {
+            if (maze.IsValidMove(currPath, x + 1, y)) {
+                SolveMaze(maze, x + 1, y, currPath);
+            }
+
+            if (maze.IsValidMove(currPath, x, y + 1)) {
+                SolveMaze(maze, x, y + 1, currPath);
+            }
+
+            if (maze.IsValidMove(currPath, x - 1, y)) {
+                SolveMaze(maze, x - 1, y, currPath);
+            }
+
+            if (maze.IsValidMove(currPath, x, y - 1)) {
+                SolveMaze(maze, x, y - 1, currPath);
+            }
+        }
+
+        currPath.RemoveAt(currPath.Count - 1);
+    }
 
         // Console.WriteLine(currPath.AsString()); // Use this to print out your path when you find the solution
     }
-}
